@@ -75,6 +75,22 @@
 
 ---
 
+## E. Post-launch polish (หลัง REPO-02 — งานเพิ่มเติมที่ทำหลังส่งรอบแรก)
+
+| ID | Card | Commit message | รายละเอียด | Definition of Done |
+|---|---|---|---|---|
+| ☑ FE-10 | Migrate UI to MUI Material | `style(frontend): migrate UI to MUI Material for a modern look` | แทนที่ custom CSS/component ทั้งหมดด้วย MUI Material: `AppBar`, `TextField`/`Accordion` form, `Table` (desktop) + `Card` list (mobile) responsive แทน media query เดิม, `Chip` status badge, `Switch` disable/enable, `Snackbar`/`Popover` สำหรับ copy/QR, `Fab`; เพิ่ม `src/theme.ts` (คง palette เดิม) | `tsc`/`oxlint`/`vitest` ผ่านหมด (9 specs); ทดสอบ flow จริงผ่านเบราว์เซอร์ (Playwright) ทุกหน้า ทั้ง desktop และ mobile ไม่มี console error |
+| ☑ FE-11 | เปลี่ยน theme font เป็น DB Heavent | `style(frontend): switch theme font to DB Heavent` | ตั้ง `typography.fontFamily` ใน `theme.ts` เป็น `"DB Heavent", sans-serif` | ตรวจสอบผ่าน computed style จริงในเบราว์เซอร์ |
+| ☑ FE-12 | จัดความสูง status filter ให้เท่ากับช่องค้นหา | `style(frontend): match status filter Select height to search TextField` | เพิ่ม `size="small"` ให้ `FormControl` ของ `Select` ให้ตรงกับ `TextField` (ซึ่ง default เป็น `small` จาก theme) | วัดความสูงจริงทั้งสอง input เท่ากัน (40px) |
+| ☑ BE-13 | แก้ config gul.fy local domain mapping | `BE-13: fix gul.fy local domain mapping config (BaseUrl port, launchSettings syntax, vite https proxy)` | ใส่ port ให้ `ShortUrl:BaseUrl`, แก้ `launchSettings.json` https profile ที่ syntax พัง, แก้ `vite.config.ts` proxy target เป็น https | ทดสอบรันจริงผ่าน `https://gul.fy:5001` (Kestrel + curl -k) ได้ `shortUrl` ที่ถูกต้อง |
+| ☑ DOC-06 | Export ARCHITECTURE.md ตาม source code จริง | `DOC-06: Export output architecture` | สร้าง `ai-logs/output/ARCHITECTURE.md` — วาดแผนภาพใหม่จาก source code จริง (เทียบกับฉบับดีไซน์ก่อน implement ที่ `ai-logs/ARCHITECTURE.md`) | ไฟล์ตรงกับ implementation ปัจจุบัน |
+| ☑ DOC-07 | แก้ syntax mermaid ใน output architecture | `DOC-07: Fix mermaid output architecture` | แก้ diagram ที่ render ไม่ผ่านใน `ai-logs/output/ARCHITECTURE.md` | diagram render ได้ถูกต้องทุกอัน |
+| ☑ DOC-08 | บันทึกวิธี map gul.fy ใน README | `DOC-08: document gul.fy local domain mapping in README` | เพิ่ม section "Local domain mapping" ใน `README.md` และ `backend/README.md` (ขั้นตอน hosts file, trust dev cert, run profile, หมายเหตุเรื่อง cert warning) | ทำตามขั้นตอนแล้วเปิด `https://gul.fy:5001` ได้จริง; ระบุชัดว่าไม่บังคับสำหรับการรัน/ตรวจงาน |
+
+> หมายเหตุ: อีก 2 commit ที่ tag เป็น `FE-08:` เพิ่มเติม (`Fix uncentered create-link card and table badge/column overflow`, `Remove QR code button from the link table row actions`) เป็น follow-up fix ของ card FE-08 เดิม ไม่ใช่ card ใหม่ — commit จริงใช้ ID เดิมต่อเนื่องกันเพราะเป็นการแก้บั๊กที่พบระหว่างทดสอบ FE-08 ซ้ำหลัง migrate ไป MUI (FE-10)
+
+---
+
 ## แนะนำลำดับการทำงาน (suggested order)
 
 1. **A (design)** ให้ตกผลึกก่อน (ทำไปแล้วส่วนใหญ่ผ่าน `DESIGN.md`/`ARCHITECTURE.md`) → เหลือแค่ DSN-11 review รอบสุดท้าย
@@ -83,3 +99,4 @@
 4. **FE-01 → FE-04** ต่อ UI หลักให้ครบ core journey (ขนานกับ BE ได้ถ้ามีเวลา/คนพอ)
 5. **BE-11/BE-12, FE-05 → FE-09** เก็บรายละเอียด + nice-to-have
 6. **DOC-04, DOC-05, REPO-01, REPO-02** ปิดงานสุดท้ายก่อนส่ง
+7. **E (post-launch polish)** — งานเพิ่มเติมหลังส่งรอบแรก ไม่บังคับต่อการตรวจ: MUI redesign (FE-10 → FE-12), gul.fy local domain setup (BE-13, DOC-08), export architecture ตาม source code จริง (DOC-06, DOC-07)
