@@ -87,7 +87,7 @@ export function LinkTable({ links, onToggleDisabled, onDelete, pendingCode }: Li
               <TableCell>สร้างเมื่อ</TableCell>
               <TableCell>เข้าถึงล่าสุด</TableCell>
               <TableCell>สถานะ</TableCell>
-              <TableCell align="right">การจัดการ</TableCell>
+              <TableCell align="center">การจัดการ</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

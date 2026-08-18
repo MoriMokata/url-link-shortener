@@ -118,7 +118,7 @@ export function DashboardPage() {
               },
             }}
           />
-          <FormControl sx={{ minWidth: 180 }}>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
             <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
               <MenuItem value="all">สถานะ: ทั้งหมด</MenuItem>
               <MenuItem value="active">ใช้งานอยู่</MenuItem>
