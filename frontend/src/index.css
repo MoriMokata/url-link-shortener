@@ -617,8 +617,26 @@ table.link-table {
   flex: 1;
 }
 
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 800px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .fab {
   display: none;
+}
+
+@media (max-width: 720px) {
+  .desktop-only {
+    display: none;
+  }
 }
 
 @media (max-width: 720px) {

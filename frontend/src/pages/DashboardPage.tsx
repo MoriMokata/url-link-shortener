@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { linksApi } from '../api/links'
 import { useLinkMutations } from '../hooks/useLinkMutations'
 import type { ShortLink } from '../types/ShortLink'
@@ -61,9 +62,14 @@ export function DashboardPage() {
 
   return (
     <div className="container">
-      <div className="page-header">
-        <h1>ลิงก์ทั้งหมดของฉัน</h1>
-        <p>ดูสถิติการเข้าถึง เปิด/ปิดใช้งาน หรือลบลิงก์ที่สร้างไว้</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <h1>ลิงก์ทั้งหมดของฉัน</h1>
+          <p>ดูสถิติการเข้าถึง เปิด/ปิดใช้งาน หรือลบลิงก์ที่สร้างไว้</p>
+        </div>
+        <Link to="/" className="btn btn-primary desktop-only">
+          + สร้างลิงก์ใหม่
+        </Link>
       </div>
 
       <div className="stat-grid">
@@ -124,6 +130,10 @@ export function DashboardPage() {
           />
         )}
       </div>
+
+      <Link to="/" className="fab" aria-label="สร้างลิงก์ใหม่">
+        +
+      </Link>
     </div>
   )
 }

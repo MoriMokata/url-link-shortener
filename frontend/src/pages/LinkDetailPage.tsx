@@ -92,7 +92,7 @@ export function LinkDetailPage() {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div className="detail-grid">
         <div className="card card-pad">
           <h3 style={{ marginBottom: 16 }}>รายละเอียดลิงก์</h3>
           <dl style={{ display: 'grid', gridTemplateColumns: '160px 1fr', rowGap: 12, margin: 0, fontSize: 14 }}>
