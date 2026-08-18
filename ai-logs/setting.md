@@ -1,1 +1,0 @@
-ตอน commit code ไม่อยากให้ ใส่ claude cowork agent
