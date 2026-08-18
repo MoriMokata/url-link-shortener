@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Snackbar from '@mui/material/Snackbar'
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 
 interface CopyButtonProps {
   text: string
   label?: string
-  className?: string
   iconOnly?: boolean
+  size?: 'small' | 'medium'
 }
 
-export function CopyButton({ text, label = 'คัดลอกลิงก์', className = 'btn', iconOnly = false }: CopyButtonProps) {
+export function CopyButton({ text, label = 'คัดลอกลิงก์', iconOnly = false, size = 'medium' }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    if (!copied) return
-    const timer = setTimeout(() => setCopied(false), 1500)
-    return () => clearTimeout(timer)
-  }, [copied])
 
   async function handleClick() {
     await navigator.clipboard.writeText(text)
@@ -23,14 +22,24 @@ export function CopyButton({ text, label = 'คัดลอกลิงก์', 
 
   return (
     <>
-      <button type="button" className={className} title={label} onClick={handleClick}>
-        📋 {!iconOnly && label}
-      </button>
-      {copied && (
-        <div className="toast" role="status">
-          คัดลอกแล้ว!
-        </div>
+      {iconOnly ? (
+        <Tooltip title={label}>
+          <IconButton size={size} onClick={handleClick}>
+            <ContentCopyRoundedIcon fontSize={size === 'small' ? 'small' : 'medium'} />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <Button variant="outlined" size={size} startIcon={<ContentCopyRoundedIcon />} onClick={handleClick}>
+          {label}
+        </Button>
       )}
+      <Snackbar
+        open={copied}
+        autoHideDuration={1500}
+        onClose={() => setCopied(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        message="คัดลอกแล้ว!"
+      />
     </>
   )
 }
