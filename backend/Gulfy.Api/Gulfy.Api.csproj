@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gulfy.Application\Gulfy.Application.csproj" />
+    <ProjectReference Include="..\Gulfy.Infrastructure\Gulfy.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Swagger/OpenAPI (Swashbuckle.AspNetCore) is added in task BE-12 -->
+
+</Project>
