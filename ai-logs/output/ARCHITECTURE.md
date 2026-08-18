@@ -118,20 +118,22 @@ sequenceDiagram
     V->>RC: GET /{code}
     RC->>S: ResolveAsync(code, User-Agent header)
     S->>R: GetByCodeAsync(code)
-    R-->>S: ShortLink | null
+    R-->>S: ShortLink or null
 
-    alt ไม่พบ หรือ !IsActive (Disabled/Deleted)
+    alt Not found or inactive
         S->>EH: throw ShortLinkNotFoundException
         EH-->>V: 404 ProblemDetails
     else Active
         S->>P: Detect(userAgent)
-        P-->>S: Platform (Ios/Android/Default — substring match บน User-Agent)
-        S->>S: link.GetDestination(platform) — override ถ้ามี, ไม่งั้น fallback OriginalUrl
+        P-->>S: Platform: Ios, Android, or Default
+        S->>S: GetDestination(platform)
         S->>R: RecordVisitAsync(code, utcNow)
-        R->>R: lock(link) { ClickCount++; LastAccessedAt = utcNow }
+        R->>R: lock(link)
+        R->>R: Increment ClickCount
+        R->>R: Set LastAccessedAt to utcNow
         R-->>S: updated link
         S-->>RC: destinationUrl
-        RC-->>V: 302 Redirect → destinationUrl
+        RC-->>V: 302 Redirect to destinationUrl
     end
 ```
 
