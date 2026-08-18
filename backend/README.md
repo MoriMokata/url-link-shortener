@@ -30,17 +30,45 @@ for diagrams.
 
 ```bash
 cd backend
-dotnet run --project Gulfy.Api
+dotnet run --project Gulfy.Api --launch-profile https
 ```
 
-The API starts on `http://localhost:5001` (see
-`Gulfy.Api/Properties/launchSettings.json`) and serves Swagger UI at
-`/swagger`. Storage is in-memory — data resets whenever the process restarts.
+Two launch profiles are defined in `Gulfy.Api/Properties/launchSettings.json`:
+
+| Profile | Binds to | Use when |
+|---|---|---|
+| `https` (recommended) | `https://gul.fy:5001` + `https://localhost:5001` | you've done the `gul.fy` hosts mapping below |
+| `http` | `http://localhost:5001` | you just want it running, no setup |
+
+Swagger UI is served at `/swagger` on either profile. Storage is in-memory —
+data resets whenever the process restarts.
 
 By default the API allows CORS requests from `http://localhost:5173` (the
 Vite dev server). Override via the `Cors:AllowedOrigins` setting in
 `appsettings.json` if needed. The `shortUrl` returned in responses is built
-from `ShortUrl:BaseUrl` in the same file.
+from `ShortUrl:BaseUrl` in the same file — it's set to `https://gul.fy:5001`,
+independent of which profile you actually ran with, so switch it to
+`http://localhost:5001` too if you're using the `http` profile.
+
+### Local domain mapping (`gul.fy`)
+
+`gul.fy` isn't a real domain — it only resolves locally once you:
+
+1. Add to the hosts file as Administrator (`C:\Windows\System32\drivers\etc\hosts`
+   on Windows): `127.0.0.1   gul.fy`
+2. Trust the dev cert once: `dotnet dev-certs https --trust`
+3. Run with `--launch-profile https` (above)
+
+The browser will still show a certificate warning when opening a `gul.fy`
+link, because the ASP.NET Core dev cert's CN is `localhost`, not `gul.fy` —
+click "Advanced → Proceed" to continue. For a warning-free cert, generate one
+scoped to the hostname with [mkcert](https://github.com/FiloSottile/mkcert)
+(`mkcert gul.fy`) and point Kestrel at it via `Kestrel:Certificates:Default`
+in `appsettings.json`.
+
+This step is entirely optional — every feature works the same over plain
+`http://localhost:5001`; `gul.fy` is only there to match the short-link
+domain shown in the original UI mockups (`../ai-logs/UI/`).
 
 ## Test
 
