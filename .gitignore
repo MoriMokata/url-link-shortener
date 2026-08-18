@@ -1,0 +1,5 @@
+# top-level ignore (also see backend/.gitignore and frontend/.gitignore)
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
