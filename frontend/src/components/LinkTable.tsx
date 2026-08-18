@@ -4,6 +4,9 @@ import { formatDate, formatRelativeTime } from '../utils/format'
 
 interface LinkTableProps {
   links: ShortLink[]
+  onToggleDisabled: (link: ShortLink) => void
+  onDelete: (link: ShortLink) => void
+  pendingCode: string | null
 }
 
 function StatusBadge({ link }: { link: ShortLink }) {
@@ -14,7 +17,59 @@ function StatusBadge({ link }: { link: ShortLink }) {
   )
 }
 
-export function LinkTable({ links }: LinkTableProps) {
+function RowActions({
+  link,
+  onToggleDisabled,
+  onDelete,
+  pending,
+}: {
+  link: ShortLink
+  onToggleDisabled: (link: ShortLink) => void
+  onDelete: (link: ShortLink) => void
+  pending: boolean
+}) {
+  return (
+    <>
+      <button
+        type="button"
+        className="btn btn-sm btn-icon"
+        title="คัดลอกลิงก์"
+        onClick={() => navigator.clipboard.writeText(link.shortUrl)}
+      >
+        📋
+      </button>
+      <a
+        className="btn btn-sm btn-icon"
+        title="เปิดต้นทาง"
+        href={link.originalUrl}
+        target="_blank"
+        rel="noreferrer"
+      >
+        ↗
+      </a>
+      <button
+        type="button"
+        className="btn btn-sm btn-icon"
+        title={link.isDisabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+        disabled={pending}
+        onClick={() => onToggleDisabled(link)}
+      >
+        ⏻
+      </button>
+      <button
+        type="button"
+        className="btn btn-sm btn-icon btn-danger"
+        title="ลบลิงก์"
+        disabled={pending}
+        onClick={() => onDelete(link)}
+      >
+        🗑
+      </button>
+    </>
+  )
+}
+
+export function LinkTable({ links, onToggleDisabled, onDelete, pendingCode }: LinkTableProps) {
   return (
     <>
       <div className="table-wrap">
@@ -27,6 +82,7 @@ export function LinkTable({ links }: LinkTableProps) {
               <th>สร้างเมื่อ</th>
               <th>เข้าถึงล่าสุด</th>
               <th>สถานะ</th>
+              <th>การจัดการ</th>
             </tr>
           </thead>
           <tbody>
@@ -43,6 +99,16 @@ export function LinkTable({ links }: LinkTableProps) {
                 <td>{link.lastAccessedAt ? formatRelativeTime(link.lastAccessedAt) : '—'}</td>
                 <td>
                   <StatusBadge link={link} />
+                </td>
+                <td>
+                  <div className="actions-cell">
+                    <RowActions
+                      link={link}
+                      onToggleDisabled={onToggleDisabled}
+                      onDelete={onDelete}
+                      pending={pendingCode === link.shortCode}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
@@ -63,6 +129,14 @@ export function LinkTable({ links }: LinkTableProps) {
             <div className="link-card-meta">
               <span>{link.clickCount} คลิก</span>
               <span>{link.lastAccessedAt ? formatRelativeTime(link.lastAccessedAt) : 'ยังไม่มีการเข้าถึง'}</span>
+            </div>
+            <div className="link-card-actions">
+              <RowActions
+                link={link}
+                onToggleDisabled={onToggleDisabled}
+                onDelete={onDelete}
+                pending={pendingCode === link.shortCode}
+              />
             </div>
           </div>
         ))}

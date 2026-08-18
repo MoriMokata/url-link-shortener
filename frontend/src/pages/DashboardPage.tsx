@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { linksApi } from '../api/links'
+import { useLinkMutations } from '../hooks/useLinkMutations'
+import type { ShortLink } from '../types/ShortLink'
 import { StatTile } from '../components/StatTile'
 import { LinkTable } from '../components/LinkTable'
 
@@ -18,6 +20,28 @@ export function DashboardPage() {
   })
 
   const links = linksQuery.data ?? EMPTY_LINKS
+  const { disable, enable, remove } = useLinkMutations()
+  const pendingCode = disable.isPending
+    ? disable.variables
+    : enable.isPending
+      ? enable.variables
+      : remove.isPending
+        ? remove.variables
+        : null
+
+  function handleToggleDisabled(link: ShortLink) {
+    if (link.isDisabled) {
+      enable.mutate(link.shortCode)
+    } else {
+      disable.mutate(link.shortCode)
+    }
+  }
+
+  function handleDelete(link: ShortLink) {
+    if (window.confirm(`ลบลิงก์ gul.fy/${link.shortCode} ถาวร? การกระทำนี้ย้อนกลับไม่ได้`)) {
+      remove.mutate(link.shortCode)
+    }
+  }
 
   const filteredLinks = useMemo(() => {
     const term = search.trim().toLowerCase()
@@ -91,7 +115,14 @@ export function DashboardPage() {
           </div>
         )}
 
-        {linksQuery.isSuccess && filteredLinks.length > 0 && <LinkTable links={filteredLinks} />}
+        {linksQuery.isSuccess && filteredLinks.length > 0 && (
+          <LinkTable
+            links={filteredLinks}
+            onToggleDisabled={handleToggleDisabled}
+            onDelete={handleDelete}
+            pendingCode={pendingCode}
+          />
+        )}
       </div>
     </div>
   )
