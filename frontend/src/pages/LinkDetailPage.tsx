@@ -4,6 +4,8 @@ import { linksApi } from '../api/links'
 import { ApiError } from '../api/apiClient'
 import { useLinkMutations } from '../hooks/useLinkMutations'
 import { StatTile } from '../components/StatTile'
+import { CopyButton } from '../components/CopyButton'
+import { QrCodePanel } from '../components/QrCodePanel'
 import { formatDateTime, formatRelativeTime } from '../utils/format'
 
 const PLATFORM_LABELS: Record<string, string> = { Ios: 'iOS', Android: 'Android' }
@@ -71,9 +73,7 @@ export function LinkDetailPage() {
             </span>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="btn" onClick={() => navigator.clipboard.writeText(link.shortUrl)}>
-              📋 คัดลอกลิงก์
-            </button>
+            <CopyButton text={link.shortUrl} />
             <a className="btn" href={link.originalUrl} target="_blank" rel="noreferrer">
               ↗ เปิดต้นทาง
             </a>
@@ -151,6 +151,8 @@ export function LinkDetailPage() {
               </div>
             ))}
           </div>
+
+          <QrCodePanel url={link.shortUrl} fileName={link.shortCode} />
         </div>
       </div>
     </div>

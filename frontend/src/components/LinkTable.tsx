@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import type { ShortLink } from '../types/ShortLink'
 import { formatDate, formatRelativeTime } from '../utils/format'
+import { CopyButton } from './CopyButton'
+import { QrCodeButton } from './QrCodeButton'
 
 interface LinkTableProps {
   links: ShortLink[]
@@ -30,14 +32,8 @@ function RowActions({
 }) {
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-sm btn-icon"
-        title="คัดลอกลิงก์"
-        onClick={() => navigator.clipboard.writeText(link.shortUrl)}
-      >
-        📋
-      </button>
+      <CopyButton text={link.shortUrl} className="btn btn-sm btn-icon" iconOnly />
+      <QrCodeButton url={link.shortUrl} />
       <a
         className="btn btn-sm btn-icon"
         title="เปิดต้นทาง"

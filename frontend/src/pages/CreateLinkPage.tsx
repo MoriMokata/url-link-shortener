@@ -2,6 +2,8 @@ import { useMutation } from '@tanstack/react-query'
 import { linksApi } from '../api/links'
 import { ApiError } from '../api/apiClient'
 import { LinkForm } from '../components/LinkForm'
+import { CopyButton } from '../components/CopyButton'
+import { QrCodeButton } from '../components/QrCodeButton'
 
 export function CreateLinkPage() {
   const createLink = useMutation({
@@ -34,6 +36,10 @@ export function CreateLinkPage() {
             <a href={createLink.data.shortUrl} target="_blank" rel="noreferrer" className="short-url">
               {createLink.data.shortUrl}
             </a>
+            <div className="result-link-actions">
+              <CopyButton text={createLink.data.shortUrl} className="btn btn-sm" />
+              <QrCodeButton url={createLink.data.shortUrl} className="btn btn-sm btn-icon" />
+            </div>
           </div>
           <p className="result-meta">
             ต้นทาง: {createLink.data.originalUrl}
