@@ -20,15 +20,21 @@ builder.Services.AddSingleton<IShortCodeGenerator, RandomBase62ShortCodeGenerato
 builder.Services.AddSingleton<ICustomAliasGenerator, CustomAliasShortCodeGenerator>();
 builder.Services.AddSingleton<IPlatformResolver, UserAgentPlatformResolver>();
 builder.Services.AddSingleton<IShortLinkService, ShortLinkService>();
-builder.Services.AddSingleton(new ShortUrlOptions());
+builder.Services.AddSingleton(
+    builder.Configuration.GetSection(ShortUrlOptions.SectionName).Get<ShortUrlOptions>() ?? new ShortUrlOptions());
 
-// TODO (BE-10): bind ShortUrlOptions from configuration and configure CORS
+const string FrontendCorsPolicy = "FrontendDevServer";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(cors => cors.AddPolicy(FrontendCorsPolicy, policy =>
+    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+
 // TODO (BE-12): re-add Swagger/OpenAPI (Swashbuckle.AspNetCore)
 
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseCors(FrontendCorsPolicy);
 
 app.MapControllers();
 
