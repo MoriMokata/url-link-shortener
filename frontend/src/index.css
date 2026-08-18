@@ -80,7 +80,7 @@ a {
 
 .container {
   width: 100%;
-  max-width: 1040px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -352,6 +352,7 @@ a {
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .badge::before {
@@ -416,7 +417,8 @@ a {
 }
 
 table.link-table {
-  width: 100%;
+  min-width: 100%;
+  width: max-content;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -436,6 +438,7 @@ table.link-table {
   padding: 14px 16px;
   border-bottom: 1px solid var(--gridline);
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .link-table tr:last-child td {

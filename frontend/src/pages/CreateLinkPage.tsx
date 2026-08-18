@@ -17,18 +17,18 @@ export function CreateLinkPage() {
         <p>แปลง URL ยาวให้เป็นลิงก์สั้น พร้อมตั้งค่า alias และปลายทางตามแพลตฟอร์มได้ตามต้องการ</p>
       </div>
 
-      <div className="card card-pad" style={{ maxWidth: 640 }}>
+      <div className="card card-pad" style={{ maxWidth: 640, margin: '0 auto' }}>
         <LinkForm submitting={createLink.isPending} onSubmit={(request) => createLink.mutate(request)} />
       </div>
 
       {createLink.isError && (
-        <p className="error-text" style={{ marginTop: 16 }}>
+        <p className="error-text" style={{ maxWidth: 640, margin: '16px auto 0' }}>
           {createLink.error instanceof ApiError ? createLink.error.message : 'สร้างลิงก์ไม่สำเร็จ กรุณาลองใหม่'}
         </p>
       )}
 
       {createLink.isSuccess && (
-        <div className="result-panel" style={{ maxWidth: 640 }}>
+        <div className="result-panel" style={{ maxWidth: 640, margin: '24px auto 0' }}>
           <div className="result-title">
             <span aria-hidden="true">✓</span> สร้างลิงก์สำเร็จ
           </div>
