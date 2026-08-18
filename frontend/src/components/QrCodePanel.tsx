@@ -1,4 +1,9 @@
 import { useRef } from 'react'
+import Card from '@mui/material/Card'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import { QRCodeCanvas } from 'qrcode.react'
 
 interface QrCodePanelProps {
@@ -21,14 +26,16 @@ export function QrCodePanel({ url, fileName }: QrCodePanelProps) {
   }
 
   return (
-    <div className="card card-pad">
-      <h3 style={{ marginBottom: 16 }}>QR CODE</h3>
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+    <Card sx={{ p: 3 }}>
+      <Typography variant="h3" sx={{ mb: 2, fontSize: 13, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'text.secondary' }}>
+        QR Code
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
         <QRCodeCanvas ref={canvasRef} value={url} size={160} />
-      </div>
-      <button type="button" className="btn btn-block" onClick={handleDownload}>
-        ⭳ ดาวน์โหลด QR
-      </button>
-    </div>
+      </Box>
+      <Button variant="outlined" fullWidth startIcon={<DownloadRoundedIcon />} onClick={handleDownload}>
+        ดาวน์โหลด QR
+      </Button>
+    </Card>
   )
 }

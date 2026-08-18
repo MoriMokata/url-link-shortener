@@ -1,4 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
+import Container from '@mui/material/Container'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 import { linksApi } from '../api/links'
 import { ApiError } from '../api/apiClient'
 import { LinkForm } from '../components/LinkForm'
@@ -11,42 +17,60 @@ export function CreateLinkPage() {
   })
 
   return (
-    <div className="container">
-      <div className="page-header">
-        <h1>สร้างลิงก์สั้นใหม่</h1>
-        <p>แปลง URL ยาวให้เป็นลิงก์สั้น พร้อมตั้งค่า alias และปลายทางตามแพลตฟอร์มได้ตามต้องการ</p>
-      </div>
+    <Container maxWidth="lg" sx={{ pt: 5 }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h1">สร้างลิงก์สั้นใหม่</Typography>
+        <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+          แปลง URL ยาวให้เป็นลิงก์สั้น พร้อมตั้งค่า alias และปลายทางตามแพลตฟอร์มได้ตามต้องการ
+        </Typography>
+      </Box>
 
-      <div className="card card-pad" style={{ maxWidth: 640, margin: '0 auto' }}>
+      <Card sx={{ p: 4, maxWidth: 640, mx: 'auto' }}>
         <LinkForm submitting={createLink.isPending} onSubmit={(request) => createLink.mutate(request)} />
-      </div>
+      </Card>
 
       {createLink.isError && (
-        <p className="error-text" style={{ maxWidth: 640, margin: '16px auto 0' }}>
+        <Alert severity="error" sx={{ maxWidth: 640, mx: 'auto', mt: 2 }}>
           {createLink.error instanceof ApiError ? createLink.error.message : 'สร้างลิงก์ไม่สำเร็จ กรุณาลองใหม่'}
-        </p>
+        </Alert>
       )}
 
       {createLink.isSuccess && (
-        <div className="result-panel" style={{ maxWidth: 640, margin: '24px auto 0' }}>
-          <div className="result-title">
-            <span aria-hidden="true">✓</span> สร้างลิงก์สำเร็จ
-          </div>
-          <div className="result-link-row">
-            <a href={createLink.data.shortUrl} target="_blank" rel="noreferrer" className="short-url">
+        <Alert severity="success" sx={{ maxWidth: 640, mx: 'auto', mt: 3 }}>
+          <AlertTitle>สร้างลิงก์สำเร็จ</AlertTitle>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 1.5,
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              p: 1.5,
+              mt: 1,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Typography
+              component="a"
+              href={createLink.data.shortUrl}
+              target="_blank"
+              rel="noreferrer"
+              sx={{ fontFamily: 'ui-monospace, monospace', fontWeight: 700, wordBreak: 'break-all' }}
+            >
               {createLink.data.shortUrl}
-            </a>
-            <div className="result-link-actions">
-              <CopyButton text={createLink.data.shortUrl} className="btn btn-sm" />
-              <QrCodeButton url={createLink.data.shortUrl} className="btn btn-sm btn-icon" />
-            </div>
-          </div>
-          <p className="result-meta">
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <CopyButton text={createLink.data.shortUrl} iconOnly size="small" />
+              <QrCodeButton url={createLink.data.shortUrl} size="small" />
+            </Box>
+          </Box>
+          <Typography variant="body2" sx={{ mt: 1.5 }}>
             ต้นทาง: {createLink.data.originalUrl}
             {Object.keys(createLink.data.platformDestinations).length > 0 && ' · iOS/Android ตั้งค่าแยกแล้ว'}
-          </p>
-        </div>
+          </Typography>
+        </Alert>
       )}
-    </div>
+    </Container>
   )
 }

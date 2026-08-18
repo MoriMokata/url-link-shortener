@@ -1,5 +1,18 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import Container from '@mui/material/Container'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import Chip from '@mui/material/Chip'
+import Button from '@mui/material/Button'
+import Switch from '@mui/material/Switch'
+import Divider from '@mui/material/Divider'
+import Alert from '@mui/material/Alert'
+import CircularProgress from '@mui/material/CircularProgress'
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
 import { linksApi } from '../api/links'
 import { ApiError } from '../api/apiClient'
 import { useLinkMutations } from '../hooks/useLinkMutations'
@@ -9,6 +22,19 @@ import { QrCodePanel } from '../components/QrCodePanel'
 import { formatDateTime, formatRelativeTime } from '../utils/format'
 
 const PLATFORM_LABELS: Record<string, string> = { Ios: 'iOS', Android: 'Android' }
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <>
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+        {value}
+      </Typography>
+    </>
+  )
+}
 
 export function LinkDetailPage() {
   const { code } = useParams<{ code: string }>()
@@ -23,23 +49,25 @@ export function LinkDetailPage() {
 
   if (linkQuery.isLoading) {
     return (
-      <div className="container">
-        <p className="state-panel">กำลังโหลด...</p>
-      </div>
+      <Container maxWidth="lg" sx={{ py: 8, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Container>
     )
   }
 
   if (linkQuery.isError || !linkQuery.data) {
     const message =
-      linkQuery.error instanceof ApiError ? linkQuery.error.message : 'ไม่พบลิงก์นี้ อาจถูกลบหรือไม่เคยมีอยู่จริง';
+      linkQuery.error instanceof ApiError ? linkQuery.error.message : 'ไม่พบลิงก์นี้ อาจถูกลบหรือไม่เคยมีอยู่จริง'
     return (
-      <div className="container">
-        <div className="state-panel error">
-          <h3>โหลดลิงก์ไม่สำเร็จ</h3>
-          <p>{message}</p>
+      <Container maxWidth="lg" sx={{ pt: 5 }}>
+        <Alert severity="error">
+          <Typography sx={{ fontWeight: 700 }}>โหลดลิงก์ไม่สำเร็จ</Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            {message}
+          </Typography>
           <Link to="/dashboard">‹ กลับไปแดชบอร์ด</Link>
-        </div>
-      </div>
+        </Alert>
+      </Container>
     )
   }
 
@@ -62,27 +90,40 @@ export function LinkDetailPage() {
   const platformEntries = Object.entries(link.platformDestinations)
 
   return (
-    <div className="container">
-      <div className="page-header">
-        <Link to="/dashboard">‹ กลับไปแดชบอร์ด</Link>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h1 style={{ margin: 0 }}>gul.fy/{link.shortCode}</h1>
-            <span className={link.isDisabled ? 'badge badge-disabled' : 'badge badge-active'}>
-              {link.isDisabled ? 'ปิดใช้งาน' : 'ใช้งานอยู่'}
-            </span>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <CopyButton text={link.shortUrl} />
-            <a className="btn" href={link.originalUrl} target="_blank" rel="noreferrer">
-              ↗ เปิดต้นทาง
-            </a>
-          </div>
-        </div>
-        <p>ต้นทาง: {link.originalUrl}</p>
-      </div>
+    <Container maxWidth="lg" sx={{ pt: 5 }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          component={Link}
+          to="/dashboard"
+          sx={{ display: 'inline-flex', alignItems: 'center', color: 'primary.main', textDecoration: 'none', fontSize: 14 }}
+        >
+          <ChevronLeftRoundedIcon fontSize="small" /> กลับไปแดชบอร์ด
+        </Typography>
 
-      <div className="stat-grid">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mt: 1.5, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography variant="h1">gul.fy/{link.shortCode}</Typography>
+            <Chip
+              size="small"
+              label={link.isDisabled ? 'ปิดใช้งาน' : 'ใช้งานอยู่'}
+              color={link.isDisabled ? 'default' : 'success'}
+              variant={link.isDisabled ? 'outlined' : 'filled'}
+              sx={link.isDisabled ? {} : { bgcolor: 'success.light', color: 'success.main' }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <CopyButton text={link.shortUrl} />
+            <Button variant="outlined" startIcon={<OpenInNewRoundedIcon />} component="a" href={link.originalUrl} target="_blank" rel="noreferrer">
+              เปิดต้นทาง
+            </Button>
+          </Box>
+        </Box>
+        <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+          ต้นทาง: {link.originalUrl}
+        </Typography>
+      </Box>
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 3 }}>
         <StatTile icon="🖱️" label="คลิกทั้งหมด" value={String(link.clickCount)} />
         <StatTile icon="📅" label="สร้างเมื่อ" value={formatDateTime(link.createdAt)} />
         <StatTile
@@ -90,71 +131,86 @@ export function LinkDetailPage() {
           label="เข้าถึงล่าสุด"
           value={link.lastAccessedAt ? formatRelativeTime(link.lastAccessedAt) : 'ยังไม่มีการเข้าถึง'}
         />
-      </div>
+      </Box>
 
-      <div className="detail-grid">
-        <div className="card card-pad">
-          <h3 style={{ marginBottom: 16 }}>รายละเอียดลิงก์</h3>
-          <dl style={{ display: 'grid', gridTemplateColumns: '160px 1fr', rowGap: 12, margin: 0, fontSize: 14 }}>
-            <dt style={{ color: 'var(--text-muted)' }}>Short code</dt>
-            <dd style={{ margin: 0, fontWeight: 700 }}>{link.shortCode}</dd>
-            <dt style={{ color: 'var(--text-muted)' }}>วิธีสร้างโค้ด</dt>
-            <dd style={{ margin: 0 }}>{link.source === 'Auto' ? 'Auto-generated' : 'Custom alias'}</dd>
-            <dt style={{ color: 'var(--text-muted)' }}>Original URL</dt>
-            <dd style={{ margin: 0, wordBreak: 'break-all' }}>{link.originalUrl}</dd>
-            <dt style={{ color: 'var(--text-muted)' }}>สร้างเมื่อ</dt>
-            <dd style={{ margin: 0 }}>{formatDateTime(link.createdAt)}</dd>
-            <dt style={{ color: 'var(--text-muted)' }}>เข้าถึงล่าสุด</dt>
-            <dd style={{ margin: 0 }}>{link.lastAccessedAt ? formatDateTime(link.lastAccessedAt) : '—'}</dd>
-          </dl>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.4fr 1fr' }, gap: 2 }}>
+        <Card sx={{ p: 3 }}>
+          <Typography variant="h3" sx={{ mb: 2 }}>
+            รายละเอียดลิงก์
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '160px 1fr', rowGap: 1.5 }}>
+            <DetailRow label="Short code" value={link.shortCode} />
+            <DetailRow label="วิธีสร้างโค้ด" value={link.source === 'Auto' ? 'Auto-generated' : 'Custom alias'} />
+            <DetailRow label="Original URL" value={link.originalUrl} />
+            <DetailRow label="สร้างเมื่อ" value={formatDateTime(link.createdAt)} />
+            <DetailRow label="เข้าถึงล่าสุด" value={link.lastAccessedAt ? formatDateTime(link.lastAccessedAt) : '—'} />
+          </Box>
 
-          <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid var(--gridline)' }} />
+          <Divider sx={{ my: 2.5 }} />
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div>
-              <strong>สถานะลิงก์</strong>
-              <p className="hint" style={{ margin: '2px 0 0' }}>ปิดใช้งานเพื่อหยุด redirect โดยไม่ลบข้อมูล</p>
-            </div>
-            <button
-              type="button"
-              className="btn"
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Box>
+              <Typography sx={{ fontWeight: 700 }}>สถานะลิงก์</Typography>
+              <Typography variant="body2" color="text.secondary">
+                ปิดใช้งานเพื่อหยุด redirect โดยไม่ลบข้อมูล
+              </Typography>
+            </Box>
+            <Switch
+              checked={!link.isDisabled}
               disabled={disable.isPending || enable.isPending}
-              onClick={handleToggleDisabled}
-            >
-              {link.isDisabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
-            </button>
-          </div>
+              onChange={handleToggleDisabled}
+            />
+          </Box>
 
-          <button type="button" className="btn btn-danger btn-block" disabled={remove.isPending} onClick={handleDelete}>
-            🗑 ลบลิงก์นี้ถาวร
-          </button>
-        </div>
+          <Button
+            variant="outlined"
+            color="error"
+            fullWidth
+            startIcon={<DeleteOutlineRoundedIcon />}
+            disabled={remove.isPending}
+            onClick={handleDelete}
+          >
+            ลบลิงก์นี้ถาวร
+          </Button>
+        </Card>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="card card-pad">
-            <h3 style={{ marginBottom: 12 }}>ปลายทางตามแพลตฟอร์ม</h3>
-            <div className="platform-row">
-              <span className="platform-tag" style={{ background: '#0b0b0b', color: '#fff' }}>
-                DEF
-              </span>
-              <span style={{ wordBreak: 'break-all', fontSize: 14 }}>{link.originalUrl}</span>
-            </div>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Card sx={{ p: 3 }}>
+            <Typography variant="h3" sx={{ mb: 1.5 }}>
+              ปลายทางตามแพลตฟอร์ม
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Chip label="DEF" size="small" sx={{ bgcolor: '#0b0b0b', color: '#fff', fontWeight: 800 }} />
+              <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                {link.originalUrl}
+              </Typography>
+            </Box>
             {platformEntries.length === 0 && (
-              <p className="hint" style={{ marginTop: 8 }}>ไม่มีปลายทางแยกตามแพลตฟอร์ม — ใช้ URL ปลายทางเสมอ</p>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+                ไม่มีปลายทางแยกตามแพลตฟอร์ม — ใช้ URL ปลายทางเสมอ
+              </Typography>
             )}
             {platformEntries.map(([platform, url]) => (
-              <div key={platform} className="platform-row">
-                <span className={`platform-tag ${platform.toLowerCase()}`}>
-                  {PLATFORM_LABELS[platform] ?? platform}
-                </span>
-                <span style={{ wordBreak: 'break-all', fontSize: 14 }}>{url}</span>
-              </div>
+              <Box
+                key={platform}
+                sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1.5, '&:not(:last-of-type)': { borderBottom: '1px solid', borderColor: 'divider' } }}
+              >
+                <Chip
+                  label={PLATFORM_LABELS[platform] ?? platform}
+                  size="small"
+                  color={platform === 'Android' ? 'success' : undefined}
+                  sx={platform === 'Ios' ? { bgcolor: '#0b0b0b', color: '#fff', fontWeight: 800 } : { fontWeight: 800 }}
+                />
+                <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                  {url}
+                </Typography>
+              </Box>
             ))}
-          </div>
+          </Card>
 
           <QrCodePanel url={link.shortUrl} fileName={link.shortCode} />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Container>
   )
 }

@@ -1,41 +1,39 @@
 import { useState } from 'react'
+import type { MouseEvent } from 'react'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Popover from '@mui/material/Popover'
+import Box from '@mui/material/Box'
 import { QRCodeSVG } from 'qrcode.react'
+import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded'
 
 interface QrCodeButtonProps {
   url: string
-  className?: string
+  size?: 'small' | 'medium'
 }
 
 /** Compact toggle button used in the table/card rows — opens a small QR popover. */
-export function QrCodeButton({ url, className = 'btn btn-sm btn-icon' }: QrCodeButtonProps) {
-  const [open, setOpen] = useState(false)
+export function QrCodeButton({ url, size = 'medium' }: QrCodeButtonProps) {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
-      <button type="button" className={className} title="QR Code" onClick={() => setOpen((v) => !v)}>
-        ⊞
-      </button>
-      {open && (
-        <div
-          className="card"
-          style={{
-            position: 'absolute',
-            top: '110%',
-            right: 0,
-            zIndex: 20,
-            padding: 12,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <QRCodeSVG value={url} size={128} />
-          <button type="button" className="btn btn-sm" onClick={() => setOpen(false)}>
-            ปิด
-          </button>
-        </div>
-      )}
-    </div>
+    <>
+      <Tooltip title="QR Code">
+        <IconButton size={size} onClick={(e: MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget)}>
+          <QrCode2RoundedIcon fontSize={size === 'small' ? 'small' : 'medium'} />
+        </IconButton>
+      </Tooltip>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+          <QRCodeSVG value={url} size={140} />
+        </Box>
+      </Popover>
+    </>
   )
 }
