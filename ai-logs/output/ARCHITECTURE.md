@@ -1,6 +1,6 @@
 # Architecture — URL Link Shortener (อัปเดตตาม source code ปัจจุบัน)
 
-> เอกสารนี้คือ `ARCHITECTURE.md` เวอร์ชันที่วาดใหม่จาก **source code จริง** ใน `D:\boss\gulf\url-link-shortener` (ตรวจสอบ 2026-08-18) เทียบกับฉบับดีไซน์ก่อน implement ที่ `/ai-logs/ARCHITECTURE.md` (ต้นฉบับยังอยู่ ไม่ได้ถูกลบ) ดูสรุปโจทย์ที่ `/ai-logs/DESIGN.md` และรายละเอียด feature-by-feature ที่ `/ai-logs/output/FEATURE_COMPILATION.md`
+> เอกสารนี้คือ `ARCHITECTURE.md` เวอร์ชันที่วาดใหม่จาก **source code จริง** ใน `D:\boss\gulf\url-link-shortener` (ตรวจสอบล่าสุด 2026-08-19 — รวมงาน post-launch polish ใน `TASKS.md` section E: MUI migration, gul.fy local domain mapping) เทียบกับฉบับดีไซน์ก่อน implement ที่ `/ai-logs/ARCHITECTURE.md` (ต้นฉบับยังอยู่ ไม่ได้ถูกลบ) ดูสรุปโจทย์ที่ `/ai-logs/DESIGN.md` และรายละเอียด feature-by-feature ที่ `/ai-logs/output/FEATURE_COMPILATION.md`
 
 ---
 
@@ -212,7 +212,6 @@ graph TD
     DashboardPage --> StatTile
     DashboardPage --> LinkTable
     LinkTable --> CopyButton
-    LinkTable --> QrCodeButton
 
     LinkDetailPage --> StatTile
     LinkDetailPage --> CopyButton
@@ -233,7 +232,8 @@ graph TD
 **สิ่งที่ต่างจากไดอะแกรมเดิม:**
 - Component library เปลี่ยนจาก "plain CSS + design tokens" (ตามที่บันทึกไว้ตอน scaffold, การ์ด FE-01) มาเป็น **MUI (Material UI) v9 + Emotion** พร้อม `theme.ts` กลาง — ไดอะแกรมเดิมไม่มี node นี้เลย
 - `StatBadge` ในดีไซน์เดิม → ของจริงชื่อ `StatTile` และถูกใช้ทั้งใน Dashboard และ LinkDetail (ดีไซน์เดิมผูกไว้กับ LinkDetailPage อย่างเดียว)
-- Component ที่เพิ่มเข้ามาโดยไม่มีในไดอะแกรมเดิม: `AppHeader` (navigation), `QrCodePanel` (แผง QR ถาวรพร้อมดาวน์โหลด PNG ในหน้า detail — แยกจาก `QrCodeButton` ที่เป็น popover เร็วๆ ในตาราง), `hooks/useLinkMutations.ts` (รวม disable/enable/delete mutation ไว้ที่เดียว ใช้ร่วมกันระหว่าง Dashboard กับ LinkDetail)
+- Component ที่เพิ่มเข้ามาโดยไม่มีในไดอะแกรมเดิม: `AppHeader` (navigation), `QrCodePanel` (แผง QR ถาวรพร้อมดาวน์โหลด PNG ในหน้า detail — แยกจาก `QrCodeButton` ที่เป็น popover เร็วๆ ในหน้า create-link), `hooks/useLinkMutations.ts` (รวม disable/enable/delete mutation ไว้ที่เดียว ใช้ร่วมกันระหว่าง Dashboard กับ LinkDetail)
+- `QrCodeButton` เดิมเคยอยู่ในแถวของ `LinkTable` ด้วย แต่ถูกเอาออกภายหลัง (ดู `TASKS.md` post-launch polish) เพราะ actions column ในตารางเริ่มแน่นเกินไป — ตอนนี้ใช้เฉพาะใน `CreateLinkPage` (ผลลัพธ์หลังสร้างลิงก์) เท่านั้น ส่วนหน้า detail ใช้ `QrCodePanel` (ถาวร มี download) แทน
 - Data fetching ใช้ TanStack Query (React Query) ตรงตามที่ดีไซน์เดิมเสนอไว้เป็นตัวเลือก — ไม่ใช้ SWR
 
 ---
@@ -243,15 +243,20 @@ graph TD
 ```mermaid
 graph LR
     subgraph "เครื่อง Dev"
-        Vite["Vite dev server<br/>localhost:5173"] -->|proxy /api| Kestrel["Kestrel<br/>localhost:5001"]
+        Hosts[("hosts file<br/>127.0.0.1 gul.fy")]
+        Vite["Vite dev server<br/>localhost:5173"] -->|proxy /api| Kestrel["Kestrel<br/>gul.fy:5001 + localhost:5001 (https)"]
         Kestrel --> Mem[("In-memory store<br/>(ConcurrentDictionary, process memory)")]
     end
     Browser["เบราว์เซอร์"] --> Vite
-    Browser -->|เปิดลิงก์สั้นโดยตรง| Kestrel
+    Browser -->|"เปิดลิงก์สั้นโดยตรง https://gul.fy:5001/code"| Kestrel
+    Hosts -.->|resolve gul.fy| Browser
 ```
 
-- Backend: Kestrel บน `http://localhost:5001` — ใช้ localhost ตรงๆ ตาม "ทางเลือกที่ง่ายกว่า" ที่โจทย์แนะนำ ไม่ได้ map `gul.fy` ผ่าน hosts file จริง (`appsettings.json` → `ShortUrl:BaseUrl` = `http://localhost:5001`)
-- Frontend: Vite dev server บน `localhost:5173`, CORS เปิดให้ origin นี้เท่านั้น (`Cors:AllowedOrigins` ใน `appsettings.json`)
+- Backend: Kestrel bind สอง URL พร้อมกันผ่าน launch profile `https` (`launchSettings.json`): `https://gul.fy:5001` และ `https://localhost:5001` — `appsettings.json` → `ShortUrl:BaseUrl` = `https://gul.fy:5001` ทำให้ `shortUrl` ที่ API สร้างออกมาชี้ไปโดเมนนี้เสมอ (เปลี่ยนจากดีไซน์เดิม/เวอร์ชันก่อนหน้าที่ใช้ `http://localhost:5001` ตรงๆ)
+  - `gul.fy` **ไม่ใช่โดเมนจริง** ต้อง map เองผ่าน hosts file (`127.0.0.1 gul.fy`, ต้องใช้สิทธิ์ Administrator) — ไม่ทำก็รันได้ปกติ แค่สลับ `BaseUrl`/launch profile กลับไปใช้ `localhost` แทน (มีขั้นตอนละเอียดใน `README.md` และ `backend/README.md` หัวข้อ "Local domain mapping")
+  - Dev cert เริ่มต้นของ ASP.NET Core มี CN เป็น `localhost` ไม่ใช่ `gul.fy` เบราว์เซอร์จะเตือน cert mismatch เวลาเปิดลิงก์ผ่าน `gul.fy` — เป็นพฤติกรรมที่รู้อยู่แล้ว ไม่ใช่บั๊ก (แก้ให้หายเตือนได้ด้วย `mkcert`)
+  - **ขั้นตอนนี้ไม่บังคับสำหรับการรัน/ตรวจงาน** — ทุกฟีเจอร์ทำงานเหมือนกันทุกประการผ่าน `http://localhost:5001` ธรรมดา
+- Frontend: Vite dev server บน `localhost:5173` (ไม่ได้ map เข้ากับ `gul.fy` — เคยทดลองแล้ว revert กลับ), CORS เปิดให้ origin นี้เท่านั้น (`Cors:AllowedOrigins` ใน `appsettings.json`)
 - Swagger UI เปิดที่ `/swagger` เมื่อรันแบบ Development (ตามที่ดีไซน์เดิมวางแผนไว้เป็น bonus ใน task BE-12 — ทำจริงแล้ว)
 - Storage เป็น in-process memory เหมือนดีไซน์เดิมทุกประการ — ข้อจำกัดเดียวกัน (ข้อมูลหายเมื่อ restart, ใช้ได้ instance เดียว)
 
@@ -266,4 +271,5 @@ graph LR
 | Error handling ตอน redirect | ไดอะแกรมวาดเป็น "return null → 404" ตรงๆ | ใช้ exception (`ShortLinkNotFoundException`) + `ApplicationExceptionHandler` กลาง (`IExceptionHandler`) | Behavior เดิมทุกประการ ต่างแค่กลไกภายในให้ทุก error path (400/404/409) ไปทางเดียวกัน |
 | API endpoints | มีแค่ create/list/get/disable/delete/redirect | เพิ่ม `PATCH /api/links/{code}/enable` | ฟีเจอร์เกินสเปกที่ทำให้ปิดแล้วเปิดกลับได้ ไม่ต้องสร้างลิงก์ใหม่ |
 | Component diagram (frontend) | `StatBadge`, ไม่มี `AppHeader`/`QrCodePanel`/hooks แยก | `StatTile`, มี `AppHeader`, `QrCodePanel` (แยกจาก `QrCodeButton`), `useLinkMutations` hook รวม mutation | UI ครบและ maintain ง่ายขึ้นกว่าที่ร่างไว้ตอนแรก |
-| ทุกจุดอื่น (system context, backend layering, ER shape, thread-safety ของ click counting, local dev topology) | — | ตรงกับดีไซน์เดิมทุกประการ | ไม่มีการเปลี่ยนแปลง |
+| Base URL / local dev domain | ใช้ `localhost:PORT` ตรงๆ ตามที่โจทย์อนุญาต ไม่บังคับ map โดเมนจริง | `ShortUrl:BaseUrl` = `https://gul.fy:5001` (post-launch polish, `TASKS.md` BE-13/DOC-08) ต้อง map `gul.fy → 127.0.0.1` ผ่าน hosts file เอง ถึงจะเปิดลิงก์ที่สร้างได้จริง | Cosmetic ล้วนๆ ให้ตรงกับ UI mockup — ไม่บังคับต่อการรัน/ตรวจงาน, สลับกลับ `localhost` ได้ทุกเมื่อ (ดู §8) |
+| ทุกจุดอื่น (system context, backend layering, ER shape, thread-safety ของ click counting) | — | ตรงกับดีไซน์เดิมทุกประการ | ไม่มีการเปลี่ยนแปลง |
