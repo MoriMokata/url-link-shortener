@@ -1,24 +1,21 @@
+import { Route, Routes } from 'react-router-dom'
+import { AppHeader } from './components/AppHeader'
+import { CreateLinkPage } from './pages/CreateLinkPage'
+import { DashboardPage } from './pages/DashboardPage'
+import { LinkDetailPage } from './pages/LinkDetailPage'
+
 function App() {
-  // Scaffold placeholder (task FE-01). Pages, routing, and the API client
-  // are added in FE-02 onward — see /TASKS.md.
   return (
-    <main
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        gap: 8,
-        textAlign: 'center',
-        padding: 24,
-      }}
-    >
-      <h1 style={{ fontSize: 28 }}>gul.fy</h1>
-      <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-        URL Link Shortener — frontend scaffold is running.
-      </p>
-    </main>
+    <div className="page">
+      <AppHeader />
+      <div className="page-body">
+        <Routes>
+          <Route path="/" element={<CreateLinkPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/links/:code" element={<LinkDetailPage />} />
+        </Routes>
+      </div>
+    </div>
   )
 }
 

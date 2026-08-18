@@ -5,12 +5,14 @@
     <ProjectReference Include="..\Gulfy.Infrastructure\Gulfy.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <!-- Swagger/OpenAPI (Swashbuckle.AspNetCore) is added in task BE-12 -->
 
 </Project>
