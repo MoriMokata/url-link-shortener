@@ -1,0 +1,67 @@
+/*
+  Design tokens — kept in sync with the approved UI mockups
+  (see /ai-logs/UI in the repo root). Swap values here if the
+  palette changes; components should reference the variables,
+  not raw hex values.
+*/
+:root {
+  --page: #f9f9f7;
+  --surface: #ffffff;
+  --surface-alt: #fcfcfb;
+  --primary: #2a78d6;
+  --primary-600: #1c5cab;
+  --primary-tint: #eaf2fc;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --border: rgba(11, 11, 11, 0.1);
+  --gridline: #e1e0d9;
+  --good: #0ca30c;
+  --good-tint: #e6f7e6;
+  --critical: #d03b3b;
+  --critical-tint: #fbe9e9;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow-card:
+    0 1px 2px rgba(11, 11, 11, 0.04), 0 8px 24px rgba(11, 11, 11, 0.05);
+
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--page);
+  color: var(--text-primary);
+  font-family:
+    system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+button {
+  font-family: inherit;
+}
