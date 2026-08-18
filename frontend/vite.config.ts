@@ -10,8 +10,9 @@ export default defineConfig({
       // Forward API calls to the ASP.NET Core backend during local dev.
       // Keep this in sync with backend/Gulfy.Api's launch URL (see BE-10).
       '/api': {
-        target: 'http://localhost:5001',
+        target: 'https://localhost:5001',
         changeOrigin: true,
+        secure: false, // dev cert for gul.fy/localhost isn't in Node's trust store
       },
     },
   },
