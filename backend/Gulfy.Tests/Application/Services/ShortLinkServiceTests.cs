@@ -224,4 +224,59 @@ public class ShortLinkServiceTests
 
         await Assert.ThrowsAsync<ShortLinkNotFoundException>(() => service.DisableAsync("missing"));
     }
+
+    [Fact]
+    public async Task GetAllAsync_returns_an_empty_list_when_no_links_exist()
+    {
+        var service = NewService(out _);
+
+        Assert.Empty(await service.GetAllAsync());
+    }
+
+    [Fact]
+    public async Task CreateAsync_treats_a_whitespace_only_alias_as_no_alias()
+    {
+        var service = NewService(out _);
+
+        var dto = await service.CreateAsync(new CreateShortLinkRequest("https://example.com", "   ", null));
+
+        Assert.Equal("Auto", dto.Source);
+        Assert.NotEqual("   ", dto.ShortCode);
+    }
+
+    [Fact]
+    public async Task CreateAsync_supports_setting_only_one_platform_override()
+    {
+        var service = NewService(out _);
+
+        var dto = await service.CreateAsync(new CreateShortLinkRequest(
+            "https://example.com",
+            "android-only",
+            new PlatformDestinationsRequest(Ios: null, Android: "https://example.com/android")));
+
+        Assert.False(dto.PlatformDestinations.ContainsKey("Ios"));
+        Assert.Equal("https://example.com/android", dto.PlatformDestinations["Android"]);
+    }
+
+    [Fact]
+    public async Task CreateAsync_rejects_an_invalid_platform_destination_url()
+    {
+        var service = NewService(out _);
+
+        await Assert.ThrowsAsync<ApplicationValidationException>(() => service.CreateAsync(new CreateShortLinkRequest(
+            "https://example.com",
+            "bad-platform-url",
+            new PlatformDestinationsRequest(Ios: "not-a-url", Android: null))));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_is_permanent_and_cannot_be_deleted_twice()
+    {
+        var service = NewService(out _);
+        var dto = await service.CreateAsync(new CreateShortLinkRequest("https://example.com", "double-delete", null));
+
+        await service.DeleteAsync(dto.ShortCode);
+
+        await Assert.ThrowsAsync<ShortLinkNotFoundException>(() => service.DeleteAsync(dto.ShortCode));
+    }
 }
