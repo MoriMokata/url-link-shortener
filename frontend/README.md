@@ -1,32 +1,66 @@
-# React + TypeScript + Vite
+# Frontend — gul.fy
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + TypeScript (Vite) app for the URL shortener: create a short link,
+browse/search all links on a dashboard with stats, and view/manage a single
+link's detail (disable, delete, QR code).
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20+ and npm
+- The backend API running (see `../backend/README.md`)
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cd frontend
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+If your backend runs on a different origin than `http://localhost:5001`,
+update the proxy target in `vite.config.ts`.
+
+## Run
+
+```bash
+npm run dev
+```
+
+Opens the dev server at `http://localhost:5173` (proxies `/api/*` to the backend).
+
+## Test
+
+```bash
+npm test
+```
+
+Runs the Vitest + React Testing Library component tests (`LinkForm`
+validation, `LinkTable` rendering).
+
+## Build
+
+```bash
+npm run build   # tsc -b && vite build
+npm run lint    # oxlint
+```
+
+## Structure
+
+```
+src/
+├── api/                  apiClient.ts (fetch wrapper + ProblemDetails errors), links.ts (typed calls)
+├── types/                ShortLink, CreateShortLinkRequest
+├── hooks/                useLinkMutations — disable/enable/delete + React Query cache invalidation
+├── components/
+│   ├── LinkForm.tsx           originalUrl / customAlias / platform overrides, client-side validation
+│   ├── LinkTable.tsx          desktop table + mobile card list, row actions
+│   ├── StatTile.tsx           stat tile used on the dashboard and detail page
+│   ├── CopyButton.tsx         copy-to-clipboard with a toast
+│   ├── QrCodeButton.tsx       popover QR code (table rows)
+│   ├── QrCodePanel.tsx        permanent QR panel with PNG download (detail page)
+│   └── AppHeader.tsx          nav bar
+├── pages/
+│   ├── CreateLinkPage.tsx     form + post-create result panel
+│   ├── DashboardPage.tsx      stat tiles, search/filter, link table, mobile FAB
+│   └── LinkDetailPage.tsx     stats, detail card, platform destinations, QR panel
+└── App.tsx                    React Router: "/", "/dashboard", "/links/:code"
+```
