@@ -164,15 +164,37 @@ public class ShortLinkServiceTests
     }
 
     [Fact]
-    public async Task EnableAsync_after_delete_stays_unresolvable()
+    public async Task EnableAsync_after_delete_throws_not_found()
     {
         var service = NewService(out _);
         var dto = await service.CreateAsync(new CreateShortLinkRequest("https://example.com", "delete-then-enable", null));
 
         await service.DeleteAsync(dto.ShortCode);
-        await service.EnableAsync(dto.ShortCode);
 
+        await Assert.ThrowsAsync<ShortLinkNotFoundException>(() => service.EnableAsync(dto.ShortCode));
         await Assert.ThrowsAsync<ShortLinkNotFoundException>(() => service.ResolveAsync(dto.ShortCode, null));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_removes_link_from_GetAllAsync()
+    {
+        var service = NewService(out _);
+        var dto = await service.CreateAsync(new CreateShortLinkRequest("https://example.com", "list-then-delete", null));
+
+        await service.DeleteAsync(dto.ShortCode);
+
+        Assert.DoesNotContain(await service.GetAllAsync(), l => l.ShortCode == dto.ShortCode);
+    }
+
+    [Fact]
+    public async Task GetByCodeAsync_throws_not_found_for_a_deleted_link()
+    {
+        var service = NewService(out _);
+        var dto = await service.CreateAsync(new CreateShortLinkRequest("https://example.com", "get-then-delete", null));
+
+        await service.DeleteAsync(dto.ShortCode);
+
+        await Assert.ThrowsAsync<ShortLinkNotFoundException>(() => service.GetByCodeAsync(dto.ShortCode));
     }
 
     [Fact]

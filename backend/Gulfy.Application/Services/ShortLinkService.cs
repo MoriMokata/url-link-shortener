@@ -52,7 +52,7 @@ public sealed class ShortLinkService(
     public async Task<IReadOnlyList<ShortLinkDto>> GetAllAsync(CancellationToken ct = default)
     {
         var links = await repository.GetAllAsync(ct);
-        return links.Select(ToDto).ToList();
+        return links.Where(l => !l.IsDeleted).Select(ToDto).ToList();
     }
 
     public async Task<ShortLinkDto> GetByCodeAsync(string code, CancellationToken ct = default) =>
@@ -93,10 +93,15 @@ public sealed class ShortLinkService(
         return destination;
     }
 
+    /// <summary>
+    /// Fetches a link for read/manage operations. A deleted link is treated as
+    /// gone (404) here — "permanent delete" means it disappears from the
+    /// dashboard, not just from redirect resolution.
+    /// </summary>
     private async Task<ShortLink> GetExistingAsync(string code, CancellationToken ct)
     {
         var link = await repository.GetByCodeAsync(code, ct);
-        return link ?? throw new ShortLinkNotFoundException(code);
+        return link is null or { IsDeleted: true } ? throw new ShortLinkNotFoundException(code) : link;
     }
 
     private static Dictionary<Platform, string> ValidatePlatformDestinations(PlatformDestinationsRequest? request)

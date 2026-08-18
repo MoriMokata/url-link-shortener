@@ -23,4 +23,25 @@ public sealed class LinksController(IShortLinkService service) : ControllerBase
     [HttpGet("{code}")]
     public async Task<ActionResult<ShortLinkDto>> GetByCode(string code, CancellationToken ct) =>
         Ok(await service.GetByCodeAsync(code, ct));
+
+    [HttpPatch("{code}/disable")]
+    public async Task<IActionResult> Disable(string code, CancellationToken ct)
+    {
+        await service.DisableAsync(code, ct);
+        return NoContent();
+    }
+
+    [HttpPatch("{code}/enable")]
+    public async Task<IActionResult> Enable(string code, CancellationToken ct)
+    {
+        await service.EnableAsync(code, ct);
+        return NoContent();
+    }
+
+    [HttpDelete("{code}")]
+    public async Task<IActionResult> Delete(string code, CancellationToken ct)
+    {
+        await service.DeleteAsync(code, ct);
+        return NoContent();
+    }
 }
