@@ -32,14 +32,7 @@ export const theme = createTheme({
     borderRadius: 14,
   },
   typography: {
-    fontFamily: [
-      'Inter',
-      'system-ui',
-      '-apple-system',
-      '"Segoe UI"',
-      'Roboto',
-      'sans-serif',
-    ].join(','),
+    fontFamily: ['"DB Heavent"', 'sans-serif'].join(','),
     h1: { fontSize: '1.75rem', fontWeight: 800 },
     h2: { fontSize: '1.375rem', fontWeight: 800 },
     h3: { fontSize: '1.125rem', fontWeight: 700 },
